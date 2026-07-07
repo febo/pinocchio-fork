@@ -62,6 +62,7 @@
 //!    points to the start of the corresponding account in the input buffer.
 //! ```
 
+pub mod inline;
 pub mod lazy;
 
 #[cfg(feature = "alloc")]
