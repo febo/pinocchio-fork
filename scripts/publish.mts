@@ -13,9 +13,14 @@ const manifestPath = path.join(workingDirectory, folder, 'Cargo.toml');
 const fix = popArgument(args, '--dry-run');
 const dryRun = argv['dry-run'] ?? false;
 
-const [level] = args;
+const [level, dependentVersion] = args;
+
 if (!level) {
   throw new Error('A version level — e.g. "patch" — must be provided.');
+}
+
+if (!['fix', 'upgrade'].includes(dependentVersion)) {
+  throw new Error('Dependent version must be "fix" or "upgrade".');
 }
 
 // Get the package information from the crate TOML file.
@@ -28,8 +33,15 @@ cd(path.dirname(manifestPath));
 
 // Publish the new version.
 const releaseArgs = dryRun
-  ? []
-  : ['--tag-name', `${name}@v{{version}}`, '--no-confirm', '--execute'];
+  ? ['--dependent-version', dependentVersion]
+  : [
+    '--tag-name',
+    `${name}@v{{version}}`,
+    '--no-confirm',
+    '--execute',
+    '--dependent-version',
+    dependentVersion,
+  ];
 await $`cargo release ${level} ${releaseArgs}`;
 
 // Stop here if this is a dry run.
