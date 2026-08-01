@@ -33,6 +33,17 @@ on:
         description: Version (used with level "version")
         required: false
         type: string
+      dependent_version:
+        description: |
+          How workspace dependencies should be handled.
+          - "fix": (Default) Only bumps the workspace for semver-breakage - prefer this option
+          - "upgrade": Bumps workspace version regardless - only use if another SDK crate requires new code
+        required: true
+        default: fix
+        type: choice
+        options:
+          - fix
+          - upgrade
       dry_run:
         description: Dry run
         required: true
@@ -167,7 +178,7 @@ jobs:
             OPTIONS=""
           fi
 
-          pnpm tsx ./scripts/publish.mts "$CRATE" "$LEVEL" $OPTIONS
+          pnpm tsx ./scripts/publish.mts "$CRATE" "$LEVEL" "${{ inputs.dependent_version }}" $OPTIONS
 
       - name: Generate a changelog
         if: github.event.inputs.dry_run != 'true' && github.event.inputs.create_release == 'true'
